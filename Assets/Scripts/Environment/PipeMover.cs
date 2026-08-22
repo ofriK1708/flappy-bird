@@ -8,7 +8,7 @@ namespace Environment
     /// scrolled off-screen. Single Responsibility: movement + the "I'm off-screen"
     /// signal only — this class does NOT know pooling exists. Whoever spawned this
     /// pipe (PipeSpawner, coming next) is responsible for releasing it back to the
-    /// pool when OnOffScreen fires.
+    /// pool when OffScreen fires.
     /// </summary>
     public class PipeMover : MonoBehaviour
     {
@@ -24,7 +24,7 @@ namespace Environment
         [SerializeField] private bool shouldBypassSpawner;
 
         /// <summary>Raised exactly once per spawn, the moment this pipe crosses despawnX.</summary>
-        public event Action<PipeMover> OnOffScreen;
+        public event Action<PipeMover> OffScreen;
 
         private bool _onScreen;
 
@@ -42,10 +42,10 @@ namespace Environment
         {
             // TODO: 1. Move transform.position leftward by scrollSpeed * Time.deltaTime.
             //
-            //       2. If transform.position.x has crossed despawnX, invoke OnOffScreen(this).
+            //       2. If transform.position.x has crossed despawnX, invoke OffScreen(this).
             //
             //          Careful: Update() keeps running every frame. If you don't guard
-            //          against it, you'll invoke OnOffScreen every single frame this
+            //          against it, you'll invoke OffScreen every single frame this
             //          pipe sits past despawnX, not just once. What happens later when
             //          a pool receives the same object "released" multiple times?
             //          Think about how you'd track "have I already fired this?".
@@ -55,7 +55,7 @@ namespace Environment
                 if (transform.position.x < despawnX)
                 {
                     _onScreen = false;
-                    OnOffScreen?.Invoke(this);
+                    OffScreen?.Invoke(this);
                     Debug.Log("Pipe moves off screen");
                 }
             }

@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.Pool;
+using Random = UnityEngine.Random;
 
 namespace Environment
 {
@@ -7,7 +8,7 @@ namespace Environment
     /// Spawns PipePair instances from an object pool at a fixed interval,
     /// positioning each one just off the right edge of the camera with a
     /// randomized vertical gap. Owns all pooling — PipeMover itself has zero
-    /// knowledge that pooling exists; it just moves and raises OnOffScreen.
+    /// knowledge that pooling exists; it just moves and raises OffScreen.
     /// </summary>
     public class PipeSpawner : MonoBehaviour
     {
@@ -110,7 +111,7 @@ namespace Environment
         {
             // TODO: Instantiate(pipePrefab, transform), and return the resulting PipeMover.
             //
-            // This is also where you must subscribe to the new pipe's OnOffScreen event —
+            // This is also where you must subscribe to the new pipe's OffScreen event —
             // and ONLY here, not in OnPipeTakenFromPool below. Why? CreatePipe runs once
             // per physical GameObject the pool ever creates. OnPipeTakenFromPool runs
             // every time that SAME object is reused from the pool. C# events don't
@@ -119,7 +120,7 @@ namespace Environment
             // after a few spawn/despawn cycles the same pipe's off-screen event would call
             // your handler 2x, then 3x, then 4x per despawn.
             PipeMover pipe = Instantiate(pipePrefab, transform);
-            pipe.OnOffScreen += OnPipeOffScreen;
+            pipe.OffScreen += HandlePipeOffScreen;
             return pipe;
         }
 
@@ -142,7 +143,7 @@ namespace Environment
         }
 
         /// <summary>Subscribed once per pipe, in CreatePipe. Fires when that pipe scrolls off-screen.</summary>
-        private void OnPipeOffScreen(PipeMover pipe)
+        private void HandlePipeOffScreen(PipeMover pipe)
         {
             // TODO: return it to the pool.
             _pool.Release(pipe);
